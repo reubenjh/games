@@ -14,10 +14,10 @@
         var ballSpeedY = 7;
 
         const BRICK_WIDTH = 80;
-        const BRICK_HEIGHT = 20;
+        const BRICK_HEIGHT = 40; // temp doubled
         const BRICK_GAP = 2;
         const BRICK_COLS = 10;
-        const BRICK_ROWS = 14;
+        const BRICK_ROWS = 7; // temp halved
         var brickGrid = new Array(BRICK_COLS * BRICK_ROWS);
 
         const PADDLE_WIDTH = 100;
@@ -30,16 +30,6 @@
         var mouseX = 0;
         var mouseY = 0;
 
-        function updateMousePos(evt) {
-            var rect = canvas.getBoundingClientRect();
-            var root = document.documentElement;
-
-            mouseX = evt.clientX - rect.left
-            mouseY = evt.clientY - rect.top
-
-            paddleX = mouseX-(PADDLE_WIDTH/2);
-        }
-
         window.onload = function() {
             canvas = document.getElementById("gameCanvas");
             canvasContext = canvas.getContext("2d");
@@ -51,7 +41,17 @@
 
             brickReset();
             // ballReset();
-        };
+        }
+
+        function updateMousePos(evt) {
+            var rect = canvas.getBoundingClientRect();
+            var root = document.documentElement;
+
+            mouseX = evt.clientX - rect.left
+            mouseY = evt.clientY - rect.top
+
+            paddleX = mouseX-(PADDLE_WIDTH/2);
+        }
 
         function updateAll() {
             moveAll();
@@ -96,10 +96,20 @@
                 ballBrickCol < BRICK_COLS &&
                 ballBrickRow >= 0 &&
                 ballBrickRow < BRICK_ROWS) {
-                
+                // test brick collision
                 if (brickGrid[brickIndexUnderBall]) {
                     brickGrid[brickIndexUnderBall] = false;
-                    ballSpeedY *= -1;
+                    // test collision direction
+                    var prevBallX = ballX - ballSpeedX;
+                    var prevBallY = ballY - ballSpeedY;
+                    var prevBrickCol = Math.floor(prevBallX / BRICK_WIDTH);
+                    var prevBrickRow = Math.floor(prevBallY / BRICK_HEIGHT);
+                    if (ballBrickCol != prevBrickCol) { // horizontal collision
+                        ballSpeedX *= -1;
+                    }
+                    if (ballBrickRow != prevBrickRow) { // vertical collision
+                        ballSpeedY *= -1;
+                    }
                 } // of brick collision found
             } // end of valid col and row
         } // end of ballBrickHandling func
