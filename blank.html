@@ -50,6 +50,7 @@
             canvas.addEventListener("mousemove", updateMousePos);
 
             brickReset();
+            // ballReset();
         };
 
         function updateAll() {
@@ -64,18 +65,11 @@
 
         function brickReset() {
             for (i=0;i<BRICK_COLS * BRICK_ROWS;i++) {
-                /*
-                if(Math.random() < 0.5) {
-                    brickGrid[i] = true;
-                } else {
-                    brickGrid[i] = false;
-                } // end of else (randomising bricks)
-                */
                 brickGrid[i] = true;
             } // end of for each brick
         } // end of brickReset func
 
-        function moveAll() {
+        function ballMove() {
             ballX += ballSpeedX;
             ballY += ballSpeedY;
 
@@ -91,7 +85,26 @@
             if (ballY < 0) { // top
                 ballSpeedY *= -1;
             }
-            
+        }
+
+        function ballBrickHandling() {
+            var ballBrickCol = Math.floor(ballX / BRICK_WIDTH);
+            var ballBrickRow = Math.floor(ballY / BRICK_HEIGHT);
+            var brickIndexUnderBall = rowColToArrayIndex(ballBrickCol,ballBrickRow)
+
+            if (ballBrickCol >= 0 &&
+                ballBrickCol < BRICK_COLS &&
+                ballBrickRow >= 0 &&
+                ballBrickRow < BRICK_ROWS) {
+                
+                if (brickGrid[brickIndexUnderBall]) {
+                    brickGrid[brickIndexUnderBall] = false;
+                    ballSpeedY *= -1;
+                } // of brick collision found
+            } // end of valid col and row
+        } // end of ballBrickHandling func
+
+        function ballPaddleHandling() {
             var paddleTopEdgeY = canvas.height-PADDLE_DIST_FROM_EDGE;
             var paddleBottomEdgeY = paddleTopEdgeY + PADDLE_THICKNESS;
             var paddleLeftEdgeX = paddleX
@@ -107,6 +120,12 @@
                 var ballDistFromPaddleCenterX = ballX - centerOfPaddleX;
                 ballSpeedX = ballDistFromPaddleCenterX * 0.35;
             }
+        }
+
+        function moveAll() {
+            ballMove();
+            ballBrickHandling();
+            ballPaddleHandling();
         }
 
         function drawBricks() {
