@@ -110,20 +110,30 @@
                     var prevBallY = ballY - ballSpeedY;
                     var prevBrickCol = Math.floor(prevBallX / BRICK_WIDTH);
                     var prevBrickRow = Math.floor(prevBallY / BRICK_HEIGHT);
+
+                    var bothTestsFailed = true;
+
                     if (ballBrickCol != prevBrickCol) { // horizontal collision
-                        // test if bricks beside collision are blocking side
+                        // bugfixing if bricks beside collision are blocking side edge
                         var adjBrickSide = rowColToArrayIndex(prevBrickCol, ballBrickRow);
                         if (brickGrid[adjBrickSide] == false) {
                             ballSpeedX *= -1;
+                            bothTestsFailed = false;
                         }
                     }
                     if (ballBrickRow != prevBrickRow) { // vertical collision
-                        // test if bricks above/below are blocking top/bottom
+                        // bugfixing if bricks above/below are blocking top/bottom edge
                         var adjBrickTopBot = rowColToArrayIndex(ballBrickCol, prevBrickRow);
                         if (brickGrid[adjBrickTopBot] == false) {
                             ballSpeedY *= -1;
+                            bothTestsFailed = false;
                         }
                     }
+
+                    if (bothTestsFailed) { // bugfixing if both edges are blocked by bricks.
+                        ballSpeedX *= -1;
+                        ballSpeedY *= -1;
+                    } // end of bugfixing brick armpit case
                 } // of brick collision found
             } // end of valid col and row
         } // end of ballBrickHandling func
