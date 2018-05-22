@@ -1,0 +1,225 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <script>
+        var ballX = 75;
+        var ballY = 75;
+        var ballSpeedX = 5;
+        var ballSpeedY = 7;
+
+        const TRACK_WIDTH = 40;
+        const TRACK_HEIGHT = 40; 
+        const TRACK_GAP = 2;
+        const TRACK_COLS = 20;
+        const TRACK_ROWS = 15; 
+        var trackGrid = new Array(TRACK_COLS * TRACK_ROWS);
+        var tracksLeft = 0;
+
+        var canvas, canvasContext; 
+
+        var mouseX = 0;
+        var mouseY = 0;
+
+        window.onload = function() {
+            canvas = document.getElementById("gameCanvas");
+            canvasContext = canvas.getContext("2d");
+
+            var framesPerSecond = 30;
+            setInterval(updateAll, 1000/framesPerSecond);
+
+            canvas.addEventListener("mousemove", updateMousePos);
+
+            trackReset();
+            ballReset();
+        }
+
+        function updateMousePos(evt) {
+            var rect = canvas.getBoundingClientRect();
+            var root = document.documentElement;
+
+            mouseX = evt.clientX - rect.left
+            mouseY = evt.clientY - rect.top
+
+            /*// cheat to test ball in any position
+            ballX = mouseX;
+            ballY = mouseY;
+            ballSpeedX = 3;
+            ballSpeedY = -4;
+            */
+        }
+
+        function updateAll() {
+            moveAll();
+            drawAll();
+        }
+
+        function ballReset() {
+            ballX = canvas.width/2;
+            ballY = canvas.height/2;
+        }
+
+        function trackReset() {
+            tracksLeft = 0;
+            
+            for (var i=0; i<TRACK_COLS*TRACK_ROWS; i++) { // setting rest of tracks
+                trackGrid[i] = true;
+                tracksLeft++;
+            } // end of for each track
+        } // end of trackReset func
+
+        function ballMove() {
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            if (ballX > canvas.width && // right
+                ballSpeedX > 0.0) { // bugfixing corner catch
+                ballSpeedX *= -1;
+            }
+            if (ballX < 0 && // left
+                ballSpeedX < 0.0) { // bugfixing corner catch
+                ballSpeedX *= -1;
+            }
+            if(ballY > canvas.height) { // bottom
+                ballReset();
+                trackReset();
+            }
+            if (ballY < 0 && // top
+                ballSpeedY < 0.0) { // bugfixing corner catch
+                ballSpeedY *= -1;
+            }
+        }
+
+        function ballTrackHandling() {
+            var ballTrackCol = Math.floor(ballX / TRACK_WIDTH);
+            var ballTrackRow = Math.floor(ballY / TRACK_HEIGHT);
+            var trackIndexUnderBall = rowColToArrayIndex(ballTrackCol,ballTrackRow)
+            
+            // test its a legal track
+            if (ballTrackCol >= 0 &&
+                ballTrackCol < TRACK_COLS &&
+                ballTrackRow >= 0 &&
+                ballTrackRow < TRACK_ROWS) {
+
+                // test track collision
+                if (isTrackAtColRow(ballTrackCol, ballTrackRow)) {
+                    trackGrid[trackIndexUnderBall] = false;
+                    tracksLeft--;
+
+                    // test collision direction
+                    var prevBallX = ballX - ballSpeedX;
+                    var prevBallY = ballY - ballSpeedY;
+                    var prevTrackCol = Math.floor(prevBallX / TRACK_WIDTH);
+                    var prevTrackRow = Math.floor(prevBallY / TRACK_HEIGHT);
+
+                    var bothTestsFailed = true;
+
+                    // horizontal collision
+                    if (ballTrackCol != prevTrackCol) {
+                        // bugfixing if tracks beside collision are blocking side edge
+                        if (isTrackAtColRow(prevTrackCol, ballTrackRow) == false) {
+                            ballSpeedX *= -1;
+                            bothTestsFailed = false;
+                        }
+                    }
+
+                    // vertical collision
+                    if (ballTrackRow != prevTrackRow) { 
+                        // bugfixing if tracks above/below are blocking top/bottom edge
+                        if (isTrackAtColRow(ballTrackCol, prevTrackRow) == false) {
+                            ballSpeedY *= -1;
+                            bothTestsFailed = false;
+                        }
+                    }
+
+                    // bugfixing if both edges are blocked by tracks.
+                    if (bothTestsFailed) {
+                        ballSpeedX *= -1;
+                        ballSpeedY *= -1;
+                    } // end of bugfixing if both edges are blocked by tracks.
+                } // of track collision found
+            } // end of valid col and row
+        } // end of ballTrackHandling func
+
+
+        function moveAll() {
+            ballMove();
+            ballTrackHandling();
+        }
+
+        function drawTracks() {
+            for (eachRow=0;eachRow<TRACK_ROWS;eachRow++) {
+                for (eachCol=0;eachCol<TRACK_COLS;eachCol++) {
+
+                    var arrayIndex = rowColToArrayIndex(eachCol, eachRow);
+
+                    if (trackGrid[arrayIndex] == true) {
+                        colorRect(TRACK_WIDTH*eachCol,TRACK_HEIGHT*eachRow,TRACK_WIDTH-TRACK_GAP,TRACK_HEIGHT-TRACK_GAP,'blue');
+                    } // end of is this track here
+                } // end of for each track
+            } // end of for each row
+        } // end of drawTracks func
+
+        function drawAll() {
+            colorRect(0,0,canvas.width,canvas.height, "black"); // Blank canvas
+            colorCircle(ballX,ballY,10, "white"); // Draw ball
+            drawTracks();
+
+            /*// Draw helper mouse coordinates 
+            var mouseTrackCol = Math.floor(mouseX / TRACK_WIDTH);
+            var mouseTrackRow = Math.floor(mouseY / TRACK_HEIGHT);
+            var trackIndexUnderMouse = rowColToArrayIndex(mouseTrackCol,mouseTrackRow)
+            colorText(mouseTrackCol+','+mouseTrackRow+':'+trackIndexUnderMouse, mouseX, mouseY, 'yellow');
+            */
+        }
+
+
+        // **********************************
+        //  Helper functions
+
+        function colorRect(topLeftX,topLeftY,boxWidth,boxHeight,fillColor) {
+            canvasContext.fillStyle = fillColor;
+            canvasContext.fillRect(topLeftX,topLeftY,boxWidth,boxHeight);
+        }
+
+        function colorCircle(centerX,centerY,radius, fillColor) {
+            canvasContext.fillStyle = fillColor;
+            canvasContext.beginPath();
+            canvasContext.arc(centerX,centerY,radius,0,Math.PI*2,true);
+            canvasContext.fill();
+        }
+
+        function colorText(showWords, textX,textY, fillColor) {
+            canvasContext.fillStyle = fillColor;
+            canvasContext.fillText(showWords, textX,textY);
+        }
+
+        function rowColToArrayIndex(col, row) {
+            return col + (TRACK_COLS * row);
+        }
+
+        function isTrackAtColRow (col, row) {
+            // test its a legal track
+            if (col >= 0 &&
+                col < TRACK_COLS &&
+                row >= 0 &&
+                row < TRACK_ROWS) {
+
+                var trackIndexUnderCoord = rowColToArrayIndex(col,row)
+                return trackGrid[trackIndexUnderCoord];
+            } else {
+                return false;
+            }
+        }
+
+
+
+
+    </script>
+</body>
+</html>
