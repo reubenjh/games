@@ -10,16 +10,29 @@
     <script>
         var ballX = 75;
         var ballY = 75;
-        var ballSpeedX = 5;
-        var ballSpeedY = 7;
+        var ballSpeedX = 0;
+        var ballSpeedY = 0;
 
         const TRACK_WIDTH = 40;
         const TRACK_HEIGHT = 40; 
         const TRACK_GAP = 2;
         const TRACK_COLS = 20;
         const TRACK_ROWS = 15; 
-        var trackGrid = new Array(TRACK_COLS * TRACK_ROWS);
-        var tracksLeft = 0;
+        var trackGrid = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                         1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+                         1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                         1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1,
+                         1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,
+                         1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1,
+                         1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1,
+                         1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
+                         1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
+                         1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
+                         1, 0, 2, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1,
+                         1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+                         1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
+                         1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1,
+                         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,];
 
         var canvas, canvasContext; 
 
@@ -35,7 +48,6 @@
 
             canvas.addEventListener("mousemove", updateMousePos);
 
-            trackReset();
             ballReset();
         }
 
@@ -60,18 +72,17 @@
         }
 
         function ballReset() {
-            ballX = canvas.width/2;
-            ballY = canvas.height/2;
-        }
-
-        function trackReset() {
-            tracksLeft = 0;
-            
-            for (var i=0; i<TRACK_COLS*TRACK_ROWS; i++) { // setting rest of tracks
-                trackGrid[i] = true;
-                tracksLeft++;
-            } // end of for each track
-        } // end of trackReset func
+            for (var eachRow=0;eachRow<TRACK_ROWS;eachRow++) {
+                for (var eachCol=0;eachCol<TRACK_COLS;eachCol++) {
+                    var arrayIndex = rowColToArrayIndex(eachCol, eachRow);
+                    if (trackGrid[arrayIndex] == 2) {
+                        trackGrid[arrayIndex] = 0;
+                        ballX = eachCol * TRACK_WIDTH;
+                        ballY = eachRow * TRACK_HEIGHT;
+                    } // end of if car found
+                } // end of search columns
+            } // end of search rows
+        } // end of ballReset func
 
         function ballMove() {
             ballX += ballSpeedX;
@@ -87,7 +98,6 @@
             }
             if(ballY > canvas.height) { // bottom
                 ballReset();
-                trackReset();
             }
             if (ballY < 0 && // top
                 ballSpeedY < 0.0) { // bugfixing corner catch
@@ -108,8 +118,6 @@
 
                 // test track collision
                 if (isTrackAtColRow(ballTrackCol, ballTrackRow)) {
-                    trackGrid[trackIndexUnderBall] = false;
-                    tracksLeft--;
 
                     // test collision direction
                     var prevBallX = ballX - ballSpeedX;
@@ -153,13 +161,17 @@
         }
 
         function drawTracks() {
-            for (eachRow=0;eachRow<TRACK_ROWS;eachRow++) {
-                for (eachCol=0;eachCol<TRACK_COLS;eachCol++) {
+            for (var eachRow=0;eachRow<TRACK_ROWS;eachRow++) {
+                for (var eachCol=0;eachCol<TRACK_COLS;eachCol++) {
 
                     var arrayIndex = rowColToArrayIndex(eachCol, eachRow);
 
-                    if (trackGrid[arrayIndex] == true) {
-                        colorRect(TRACK_WIDTH*eachCol,TRACK_HEIGHT*eachRow,TRACK_WIDTH-TRACK_GAP,TRACK_HEIGHT-TRACK_GAP,'blue');
+                    if (trackGrid[arrayIndex] == 1) {
+                        colorRect(TRACK_WIDTH*eachCol,
+                                  TRACK_HEIGHT*eachRow,
+                                  TRACK_WIDTH-TRACK_GAP,
+                                  TRACK_HEIGHT-TRACK_GAP,
+                                  'blue');
                     } // end of is this track here
                 } // end of for each track
             } // end of for each row
@@ -211,7 +223,7 @@
                 row < TRACK_ROWS) {
 
                 var trackIndexUnderCoord = rowColToArrayIndex(col,row)
-                return trackGrid[trackIndexUnderCoord];
+                return (trackGrid[trackIndexUnderCoord] == 1);
             } else {
                 return false;
             }
