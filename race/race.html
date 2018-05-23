@@ -14,8 +14,7 @@
         var carX = 75;
         var carY = 75;
         var carAng = 0;
-        var carSpeedX = 5;
-        var carSpeedY = 7;
+        var carSpeed = 0;
 
         const TRACK_WIDTH = 40;
         const TRACK_HEIGHT = 40; 
@@ -38,27 +37,21 @@
                          1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1,
                          1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,];
 
-        var canvas, canvasContext; 
+        var canvas, canvasContext;
+
+        const KEY_LEFT_ARROW = 37;
+        const KEY_UP_ARROW = 38;
+        const KEY_RIGHT_ARROW = 39;
+        const KEY_DOWN_ARROW = 40;
+
+        var keyHeldGas = false;
+        var keyHeldReverse = false;
+        var keyHeldTurnLeft = false;
+        var keyHeldTurnRight = false;
 
         var mouseX = 0;
         var mouseY = 0;
 
-        window.onload = function() {
-            canvas = document.getElementById("gameCanvas");
-            canvasContext = canvas.getContext("2d");
-
-            var framesPerSecond = 30;
-            setInterval(updateAll, 1000/framesPerSecond);
-
-            canvas.addEventListener("mousemove", updateMousePos);
-            
-            carPic.onload = function () {
-                carPicLoaded = true;
-            }
-            carPic.src = "player1car.png";
-        
-            carReset();
-        }
 
         function updateMousePos(evt) {
             var rect = canvas.getBoundingClientRect();
@@ -74,6 +67,61 @@
             carSpeedY = -4;
             */
         }
+
+        function keyPressed(evt) {
+            //console.log(evt.keyCode);
+            if (evt.keyCode == KEY_LEFT_ARROW) {
+                keyHeldTurnLeft = true;
+            }
+            if (evt.keyCode == KEY_RIGHT_ARROW) {
+                keyHeldTurnRight = true;
+            }
+            if (evt.keyCode == KEY_UP_ARROW) {
+                keyHeldGas = true;
+            }
+            if (evt.keyCode == KEY_DOWN_ARROW) {
+                keyHeldReverse = true;
+            }
+            evt.preventDefault();
+        }
+
+        function keyReleased(evt) {
+            //console.log(evt.keyCode);
+            if (evt.keyCode == KEY_LEFT_ARROW) {
+                keyHeldTurnLeft = false;
+            }
+            if (evt.keyCode == KEY_RIGHT_ARROW) {
+                keyHeldTurnRight = false;
+            }
+            if (evt.keyCode == KEY_UP_ARROW) {
+                keyHeldGas = false;
+            }
+            if (evt.keyCode == KEY_DOWN_ARROW) {
+                keyHeldReverse = false;
+            }
+            evt.preventDefault();
+        }
+
+        window.onload = function() {
+            canvas = document.getElementById("gameCanvas");
+            canvasContext = canvas.getContext("2d");
+
+            var framesPerSecond = 30;
+            setInterval(updateAll, 1000/framesPerSecond);
+
+            canvas.addEventListener("mousemove", updateMousePos);
+
+            document.addEventListener("keydown", keyPressed);
+            document.addEventListener("keyup", keyReleased);
+            
+            carPic.onload = function () {
+                carPicLoaded = true;
+            }
+            carPic.src = "player1car.png";
+        
+            carReset();
+        }
+
 
         function updateAll() {
             moveAll();
@@ -94,25 +142,28 @@
         } // end of carReset func
 
         function carMove() {
-            // carX += carSpeedX;
-            // carY += carSpeedY;
-            carAng += 0.02;
+            if (keyHeldGas) { // Accelerate
+                carSpeed += 0.2;
+            }
+            else { // Decelerate
+                if (carSpeed > 0) {
+                    carSpeed -= 0.02;
+                }
+            }
 
-            if (carX > canvas.width && // right
-                carSpeedX > 0.0) { // bugfixing corner catch
-                carSpeedX *= -1;
+            if (keyHeldReverse) { // Brake
+                carSpeed -= 0.2;
             }
-            if (carX < 0 && // left
-                carSpeedX < 0.0) { // bugfixing corner catch
-                carSpeedX *= -1;
+            if (keyHeldTurnRight) { // Turn right
+                carAng += 0.04;
             }
-            if(carY > canvas.height) { // bottom
-                carReset();
+            if (keyHeldTurnLeft) { // Turn left
+                carAng -= 0.04;
             }
-            if (carY < 0 && // top
-                carSpeedY < 0.0) { // bugfixing corner catch
-                carSpeedY *= -1;
-            }
+
+            // Account for angle
+            carX += Math.cos(carAng) * carSpeed;
+            carY += Math.sin(carAng) * carSpeed;
         }
 
         function carTrackHandling() {
@@ -128,38 +179,11 @@
 
                 // test track collision
                 if (isTrackAtColRow(carTrackCol, carTrackRow)) {
-
-                    // test collision direction
-                    var prevCarX = carX - carSpeedX;
-                    var prevCarY = carY - carSpeedY;
-                    var prevTrackCol = Math.floor(prevCarX / TRACK_WIDTH);
-                    var prevTrackRow = Math.floor(prevCarY / TRACK_HEIGHT);
-
-                    var bothTestsFailed = true;
-
-                    // horizontal collision
-                    if (carTrackCol != prevTrackCol) {
-                        // bugfixing if tracks beside collision are blocking side edge
-                        if (isTrackAtColRow(prevTrackCol, carTrackRow) == false) {
-                            carSpeedX *= -1;
-                            bothTestsFailed = false;
-                        }
-                    }
-
-                    // vertical collision
-                    if (carTrackRow != prevTrackRow) { 
-                        // bugfixing if tracks above/below are blocking top/bottom edge
-                        if (isTrackAtColRow(carTrackCol, prevTrackRow) == false) {
-                            carSpeedY *= -1;
-                            bothTestsFailed = false;
-                        }
-                    }
-
-                    // bugfixing if both edges are blocked by tracks.
-                    if (bothTestsFailed) {
-                        carSpeedX *= -1;
-                        carSpeedY *= -1;
-                    } // end of bugfixing if both edges are blocked by tracks.
+                    // Undoes car movement that gets it stuck inside wall
+                    carX -= Math.cos(carAng) * carSpeed;
+                    carY -= Math.sin(carAng) * carSpeed;
+                    
+                    carSpeed *= -0.5;
                 } // of track collision found
             } // end of valid col and row
         } // end of carTrackHandling func
