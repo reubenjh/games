@@ -8,12 +8,7 @@ window.onload = function() {
     var framesPerSecond = 30;
     setInterval(updateAll, 1000/framesPerSecond);
     setupInput();
-    
-    carPic.onload = function () {
-        carPicLoaded = true;
-    }
-    carPic.src = "player1car.png";
-
+    carImageLoad();
     carReset();
 }
 
