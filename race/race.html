@@ -13,6 +13,7 @@
 
         var carX = 75;
         var carY = 75;
+        var carAng = 0;
         var carSpeedX = 5;
         var carSpeedY = 7;
 
@@ -93,8 +94,9 @@
         } // end of carReset func
 
         function carMove() {
-            carX += carSpeedX;
-            carY += carSpeedY;
+            // carX += carSpeedX;
+            // carY += carSpeedY;
+            carAng += 0.02;
 
             if (carX > canvas.width && // right
                 carSpeedX > 0.0) { // bugfixing corner catch
@@ -190,9 +192,7 @@
 
             // colorCircle(carX,carY,10, "white"); // Draw car
             if (carPicLoaded) {
-                canvasContext.drawImage(carPic,
-                    carX - carPic.width/2,
-                    carY - carPic.height/2);
+                drawBitmapCenteredWithRotation(carPic, carX, carY, carAng);
             }
             drawTracks();
         }
@@ -200,6 +200,14 @@
 
         // **********************************
         //  Helper functions
+
+        function drawBitmapCenteredWithRotation(useBitmap, atX, atY, withAng) {
+            canvasContext.save();
+            canvasContext.translate(atX, atY);
+            canvasContext.rotate(withAng);
+            canvasContext.drawImage(useBitmap, -useBitmap.width/2, -useBitmap.height/2);
+            canvasContext.restore();
+        }
 
         function colorRect(topLeftX,topLeftY,boxWidth,boxHeight,fillColor) {
             canvasContext.fillStyle = fillColor;
