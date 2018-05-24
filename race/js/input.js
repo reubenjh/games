@@ -65,6 +65,6 @@ function keyPressed(evt) {
 }
 
 function keyReleased(evt) {
-    keySet(evt,greenCar, true);
-    keySet(evt,false);
+    keySet(evt,greenCar, false);
+    keySet(evt,blueCar, false);
 }
