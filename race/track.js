@@ -1,6 +1,3 @@
-var roadPic = document.createElement("img");
-var wallPic = document.createElement("img");
-
 const TRACK_WIDTH = 40;
 const TRACK_HEIGHT = 40; 
 const TRACK_GAP = 2;
@@ -25,11 +22,6 @@ const TRACK_ROAD = 0;
 const TRACK_WALL = 1;
 const TRACK_PLAYERSTART = 2;
 
-
-function trackLoadImages() {
-    roadPic.src = "images/track_road.png";
-    wallPic.src = "images/track_wall.png";
-}
 
 function drawTracks() {
     for (var eachRow=0;eachRow<TRACK_ROWS;eachRow++) {
