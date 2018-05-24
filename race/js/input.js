@@ -12,6 +12,12 @@ var mouseX = 0;
 var mouseY = 0;
 
 
+function startGameOnKeyPress(evt) {
+    evt.preventDefault();
+    loadImages(); // starts game once image loading complete
+    document.removeEventListener("keydown", startGameOnKeyPress);
+}
+
 function setupInput() {
     canvas.addEventListener("mousemove", updateMousePos);
 

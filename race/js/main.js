@@ -5,7 +5,10 @@ window.onload = function() {
     canvas = document.getElementById("gameCanvas");
     canvasContext = canvas.getContext("2d");
 
-    loadImages();
+    // Welcome screen
+    colorRect(0,0,canvas.width,canvas.height, "black");
+    colorText("PRESS ANY KEY TO GOOOOOO", (canvas.width/2) - 70, (canvas.height/2) - 5, "white");
+    document.addEventListener("keydown", startGameOnKeyPress);
 }
 
 function imageLoadingDoneSoStartGame() {
