@@ -1,11 +1,11 @@
 var carPic = document.createElement("img");
-var roadPic = document.createElement("img");
-var wallPic = document.createElement("img");
+var trackPics = [];
 
 var picsToLoad = 0; // Set automatically based on imageList.length in loadImages
 
 function countLoadedImagesAndLaunchIfReady() {
     picsToLoad--;
+    //console.log(picsToLoad);
     if(picsToLoad == 0) {
         imageLoadingDoneSoStartGame();
     }
@@ -13,19 +13,32 @@ function countLoadedImagesAndLaunchIfReady() {
 
 function beginLoadingImages(imgVar, fileName) {
     imgVar.onload = countLoadedImagesAndLaunchIfReady;
-    imgVar.src = fileName;
+    imgVar.src = "images/"+fileName;
+}
+
+function loadImageForTrackCode(trackCode, fileName) {
+    trackPics[trackCode] = document.createElement("img");
+    beginLoadingImages(trackPics[trackCode], fileName);
 }
 
 function loadImages() {
     var imageList = [
-        {varName: carPic, fileName: "images/player1car.png"},
-        {varName: roadPic, fileName: "images/track_road.png"},
-        {varName: wallPic, fileName: "images/track_wall.png"}
+        {varName: carPic, fileName: "player1car.png"},
+
+        {trackType: TRACK_ROAD, fileName: "track_road.png"},
+        {trackType: TRACK_WALL, fileName: "track_wall.png"},
+        {trackType: TRACK_GOAL, fileName: "track_goal.png"},
+        {trackType: TRACK_TREE, fileName: "track_tree.png"},
+        {trackType: TRACK_FLAG, fileName: "track_flag.png"}
     ]
 
     picsToLoad = imageList.length;
 
     for (var i=0;i<imageList.length;i++) {
-        beginLoadingImages(imageList[i].varName, imageList[i].fileName);
+        if (imageList[i].varName != undefined) {
+            beginLoadingImages(imageList[i].varName, imageList[i].fileName);
+        } else {
+            loadImageForTrackCode(imageList[i].trackType, imageList[i].fileName);
+        }
     }
 }
