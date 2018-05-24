@@ -13,7 +13,7 @@ var trackGrid = [4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4,
                  1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 5, 0, 0, 1, 0, 0, 1,
                  1, 0, 0, 1, 0, 0, 5, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
                  1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 5, 0, 0, 1, 0, 0, 1, 0, 0, 1,
-                 1, 0, 2, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 5, 0, 0, 1,
+                 1, 2, 2, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 5, 0, 0, 1,
                  1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
                  0, 3, 0, 0, 0, 0, 1, 4, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
                  0, 3, 0, 0, 0, 0, 1, 4, 4, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1,
@@ -44,9 +44,9 @@ function drawTracks() {
     } // end of for each row
 } // end of drawTracks func
 
-function carTrackHandling() {
-    var carTrackCol = Math.floor(carX / TRACK_WIDTH);
-    var carTrackRow = Math.floor(carY / TRACK_HEIGHT);
+function carTrackHandling(whichCar) {
+    var carTrackCol = Math.floor(whichCar.x / TRACK_WIDTH);
+    var carTrackRow = Math.floor(whichCar.y / TRACK_HEIGHT);
     var trackIndexUnderCar = rowColToArrayIndex(carTrackCol,carTrackRow)
     
     // test its a legal track
@@ -58,10 +58,10 @@ function carTrackHandling() {
         // test track collision
         if (isObstacleAtColRow(carTrackCol, carTrackRow)) {
             // Undoes car movement that gets it stuck inside wall
-            carX -= Math.cos(carAng) * carSpeed;
-            carY -= Math.sin(carAng) * carSpeed;
+            whichCar.x -= Math.cos(whichCar.ang) * whichCar.speed;
+            whichCar.y -= Math.sin(whichCar.ang) * whichCar.speed;
             
-            carSpeed *= -0.5;
+            whichCar.speed *= -0.5;
         } // of track collision found
     } // end of valid col and row
 } // end of carTrackHandling func

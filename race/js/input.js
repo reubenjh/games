@@ -3,10 +3,10 @@ const KEY_UP_ARROW = 38;
 const KEY_RIGHT_ARROW = 39;
 const KEY_DOWN_ARROW = 40;
 
-var keyHeldGas = false;
-var keyHeldReverse = false;
-var keyHeldTurnLeft = false;
-var keyHeldTurnRight = false;
+const KEY_A = 65;
+const KEY_W = 87;
+const KEY_D = 68;
+const KEY_S = 83;
 
 var mouseX = 0;
 var mouseY = 0;
@@ -23,6 +23,9 @@ function setupInput() {
 
     document.addEventListener("keydown", keyPressed);
     document.addEventListener("keyup", keyReleased);
+
+    greenCar.inputSetup(KEY_W, KEY_D, KEY_S, KEY_A);
+    blueCar.inputSetup(KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW, KEY_LEFT_ARROW);
 }
 
 function updateMousePos(evt) {
@@ -40,36 +43,28 @@ function updateMousePos(evt) {
     */
 }
 
+function keySet(keyEvent, whichCar, setTo) {
+    if (keyEvent.keyCode == whichCar.controlKeyLeft) {
+        whichCar.keyHeldTurnLeft = setTo;
+    }
+    if (keyEvent.keyCode == whichCar.controlKeyRight) {
+        whichCar.keyHeldTurnRight = setTo;
+    }
+    if (keyEvent.keyCode == whichCar.controlKeyUp) {
+        whichCar.keyHeldGas = setTo;
+    }
+    if (keyEvent.keyCode == whichCar.controlKeyDown) {
+        whichCar.keyHeldReverse = setTo;
+    }
+    keyEvent.preventDefault();
+}
+
 function keyPressed(evt) {
-    //console.log(evt.keyCode);
-    if (evt.keyCode == KEY_LEFT_ARROW) {
-        keyHeldTurnLeft = true;
-    }
-    if (evt.keyCode == KEY_RIGHT_ARROW) {
-        keyHeldTurnRight = true;
-    }
-    if (evt.keyCode == KEY_UP_ARROW) {
-        keyHeldGas = true;
-    }
-    if (evt.keyCode == KEY_DOWN_ARROW) {
-        keyHeldReverse = true;
-    }
-    evt.preventDefault();
+    keySet(evt,greenCar, true);
+    keySet(evt,blueCar, true);
 }
 
 function keyReleased(evt) {
-    //console.log(evt.keyCode);
-    if (evt.keyCode == KEY_LEFT_ARROW) {
-        keyHeldTurnLeft = false;
-    }
-    if (evt.keyCode == KEY_RIGHT_ARROW) {
-        keyHeldTurnRight = false;
-    }
-    if (evt.keyCode == KEY_UP_ARROW) {
-        keyHeldGas = false;
-    }
-    if (evt.keyCode == KEY_DOWN_ARROW) {
-        keyHeldReverse = false;
-    }
-    evt.preventDefault();
+    keySet(evt,greenCar, true);
+    keySet(evt,false);
 }

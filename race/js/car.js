@@ -1,51 +1,74 @@
-var carX = 75;
-var carY = 75;
-var carAng = 0;
-var carSpeed = 0;
-
 const GROUNDSPEED_DECAY_MULT = 0.96;
 const DRIVE_POWER = 0.5;
 const REVERSE_POWER = 0.2;
 const TURN_RATE = 0.06;
 const MIN_SPEED_TO_TURN = 0.5;
 
+function carClass() {
+    this.x = 75;
+    this.y = 75;
+    this.ang = 0;
+    this.speed = 0;
+    this.myCarPic; // which picture to use
 
-function carReset() {
-    for (var eachRow=0;eachRow<TRACK_ROWS;eachRow++) {
-        for (var eachCol=0;eachCol<TRACK_COLS;eachCol++) {
-            var arrayIndex = rowColToArrayIndex(eachCol, eachRow);
-            if (trackGrid[arrayIndex] == TRACK_PLAYERSTART) {
-                trackGrid[arrayIndex] = TRACK_ROAD;
-                carAng = -Math.PI/2;
-                carX = eachCol * TRACK_WIDTH;
-                carY = eachRow * TRACK_HEIGHT;
-            } // end of if car found
-        } // end of search columns
-    } // end of search rows
-} // end of carReset func
+    this.keyHeldGas = false;
+    this.keyHeldReverse = false;
+    this.keyHeldTurnLeft = false;
+    this.keyHeldTurnRight = false;
 
-function carMove() {
-    carSpeed *= GROUNDSPEED_DECAY_MULT; // Handling natural deceleration
+    this.controlKeyUp;
+    this.controlKeyRight;
+    this.controlKeyDown;
+    this.controlKeyLeft;
 
-    if (keyHeldGas) { // Accelerate
-        carSpeed += DRIVE_POWER;
+    this.inputSetup = function (upKey, rightKey, downKey, leftKey) {
+        this.controlKeyUp = upKey;
+        this.controlKeyRight = rightKey;
+        this.controlKeyDown = downKey;
+        this.controlKeyLeft = leftKey;
     }
-    if (keyHeldReverse) { // Brake
-        carSpeed -= REVERSE_POWER;
-    }
-    if (Math.abs(carSpeed) > MIN_SPEED_TO_TURN) { // Stop turning in place
-        if (keyHeldTurnRight) { // Turn right
-            carAng += TURN_RATE;
+
+    this.reset = function(whichImage) {
+        this.myCarPic = whichImage;
+        for (var eachRow=0;eachRow<TRACK_ROWS;eachRow++) {
+            for (var eachCol=0;eachCol<TRACK_COLS;eachCol++) {
+                var arrayIndex = rowColToArrayIndex(eachCol, eachRow);
+                if (trackGrid[arrayIndex] == TRACK_PLAYERSTART) {
+                    trackGrid[arrayIndex] = TRACK_ROAD;
+                    this.ang = -Math.PI/2;
+                    this.x = (eachCol * TRACK_WIDTH) +(TRACK_WIDTH/2);
+                    this.y = (eachRow * TRACK_HEIGHT) + (TRACK_HEIGHT/2);
+                    return;
+                } // end of if car found, set it's coordinates and angle
+            } // end of search columns
+        } // end of search rows
+    } // end of carReset func
+
+    this.move = function () {
+        this.speed *= GROUNDSPEED_DECAY_MULT; // Handling natural deceleration
+
+        if (this.keyHeldGas) { // Accelerate
+            this.speed += DRIVE_POWER;
         }
-        if (keyHeldTurnLeft) { // Turn left
-            carAng -= TURN_RATE;
+        if (this.keyHeldReverse) { // Brake
+            this.speed -= REVERSE_POWER;
         }
-    }
-    // Account for angle
-    carX += Math.cos(carAng) * carSpeed;
-    carY += Math.sin(carAng) * carSpeed;
-}
+        if (Math.abs(this.speed) > MIN_SPEED_TO_TURN) { // Stop turning in place
+            if (this.keyHeldTurnRight) { // Turn right
+                this.ang += TURN_RATE;
+            }
+            if (this.keyHeldTurnLeft) { // Turn left
+                this.ang -= TURN_RATE;
+            }
+        }
+        // Account for angle
+        this.x += Math.cos(this.ang) * this.speed;
+        this.y += Math.sin(this.ang) * this.speed;
 
-function drawCar() {
-    drawBitmapCenteredWithRotation(carPic, carX, carY, carAng);
+        carTrackHandling(this);
+    }
+
+    this.draw = function () {
+        drawBitmapCenteredWithRotation(this.myCarPic, this.x, this.y, this.ang);
+    }
 }
