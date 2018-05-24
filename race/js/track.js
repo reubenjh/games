@@ -27,16 +27,20 @@ const TRACK_FLAG = 5;
 
 
 function drawTracks() {
+
+    var arrayIndex = 0;
+    var drawTileX = 0;
+    var drawTileY = 0;
     for (var eachRow=0;eachRow<TRACK_ROWS;eachRow++) {
         for (var eachCol=0;eachCol<TRACK_COLS;eachCol++) {
-
-            var arrayIndex = rowColToArrayIndex(eachCol, eachRow);
             var tileKindHere = trackGrid[arrayIndex];
-
             var useImg = trackPics[tileKindHere];
-            
-            canvasContext.drawImage(useImg, TRACK_WIDTH*eachCol, TRACK_HEIGHT*eachRow);
+            canvasContext.drawImage(useImg, drawTileX, drawTileY);
+            drawTileX += TRACK_WIDTH;
+            arrayIndex++;
         } // end of for each col
+        drawTileX = 0;
+        drawTileY += TRACK_HEIGHT;
     } // end of for each row
 } // end of drawTracks func
 
