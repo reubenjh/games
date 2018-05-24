@@ -3,21 +3,23 @@ const TRACK_HEIGHT = 40;
 const TRACK_GAP = 2;
 const TRACK_COLS = 20;
 const TRACK_ROWS = 15; 
-var trackGrid = [4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4,
-                 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-                 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1,
-                 1, 0, 0, 0, 1, 1, 1, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 0, 0, 1,
-                 1, 0, 0, 1, 1, 0, 0, 1, 4, 4, 4, 1, 0, 0, 0, 0, 1, 0, 0, 1,
-                 1, 0, 0, 1, 0, 0, 0, 0, 1, 4, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1,
-                 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 5, 0, 0, 1, 0, 0, 1,
-                 1, 0, 0, 1, 0, 0, 5, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
-                 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 5, 0, 0, 1, 0, 0, 1, 0, 0, 1,
-                 1, 2, 2, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 5, 0, 0, 1,
-                 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
-                 0, 3, 0, 0, 0, 0, 1, 4, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
-                 0, 3, 0, 0, 0, 0, 1, 4, 4, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1,
-                 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 4,];
+var levelOne = [4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4,
+                4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+                4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1,
+                1, 0, 0, 0, 1, 1, 1, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 0, 0, 1,
+                1, 0, 0, 1, 1, 0, 0, 1, 4, 4, 4, 1, 0, 0, 0, 0, 1, 0, 0, 1,
+                1, 0, 0, 1, 0, 0, 0, 0, 1, 4, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1,
+                1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 5, 0, 0, 1, 0, 0, 1,
+                1, 3, 3, 1, 0, 0, 5, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
+                1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 5, 0, 0, 1, 0, 0, 1, 0, 0, 1,
+                1, 2, 2, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 5, 0, 0, 1,
+                1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+                0, 3, 0, 0, 0, 0, 1, 4, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
+                0, 3, 0, 0, 0, 0, 1, 4, 4, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 4,];
+
+var trackGrid = [];
 const TRACK_ROAD = 0;
 const TRACK_WALL = 1;
 const TRACK_PLAYERSTART = 2;
@@ -49,24 +51,32 @@ function carTrackHandling(whichCar) {
     var carTrackRow = Math.floor(whichCar.y / TRACK_HEIGHT);
     var trackIndexUnderCar = rowColToArrayIndex(carTrackCol,carTrackRow)
     
-    // test its a legal track
+    // test its a legal track tile
     if (carTrackCol >= 0 &&
         carTrackCol < TRACK_COLS &&
         carTrackRow >= 0 &&
         carTrackRow < TRACK_ROWS) {
+        
+        var tileHere = returnTileTypeAtColRow(carTrackCol, carTrackRow);
+       
 
-        // test track collision
-        if (isObstacleAtColRow(carTrackCol, carTrackRow)) {
+        if (tileHere == TRACK_GOAL) { // test if finish line hit
+            console.log(whichCar.name + " WINS");
+            loadLevel(levelOne);
+        }
+
+        else if (tileHere != TRACK_ROAD) {  // test collision with anything non-road
             // Undoes car movement that gets it stuck inside wall
             whichCar.x -= Math.cos(whichCar.ang) * whichCar.speed;
             whichCar.y -= Math.sin(whichCar.ang) * whichCar.speed;
             
             whichCar.speed *= -0.5;
-        } // of track collision found
+
+        } // of collision with non-road found
     } // end of valid col and row
 } // end of carTrackHandling func
 
-function isObstacleAtColRow (col, row) {
+function returnTileTypeAtColRow (col, row) {
     // test its a legal track
     if (col >= 0 &&
         col < TRACK_COLS &&
@@ -74,9 +84,9 @@ function isObstacleAtColRow (col, row) {
         row < TRACK_ROWS) {
 
         var trackIndexUnderCoord = rowColToArrayIndex(col,row)
-        return (trackGrid[trackIndexUnderCoord] != TRACK_ROAD);
+        return trackGrid[trackIndexUnderCoord];
     } else {
-        return false;
+        return TRACK_WALL;
     }
 }
 

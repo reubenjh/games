@@ -10,6 +10,7 @@ function carClass() {
     this.ang = 0;
     this.speed = 0;
     this.myCarPic; // which picture to use
+    this.name = "untitled car";
 
     this.keyHeldGas = false;
     this.keyHeldReverse = false;
@@ -28,8 +29,11 @@ function carClass() {
         this.controlKeyLeft = leftKey;
     }
 
-    this.reset = function(whichImage) {
+    this.reset = function(whichImage, carName) {
+        this.name = carName;
         this.myCarPic = whichImage;
+        this.speed = 0;
+        
         for (var eachRow=0;eachRow<TRACK_ROWS;eachRow++) {
             for (var eachCol=0;eachCol<TRACK_COLS;eachCol++) {
                 var arrayIndex = rowColToArrayIndex(eachCol, eachRow);
@@ -39,9 +43,10 @@ function carClass() {
                     this.x = (eachCol * TRACK_WIDTH) +(TRACK_WIDTH/2);
                     this.y = (eachRow * TRACK_HEIGHT) + (TRACK_HEIGHT/2);
                     return;
-                } // end of if car found, set it's coordinates and angle
+                }// end of if car found, set it's coordinates and angle
             } // end of search columns
         } // end of search rows
+        console.log("NO PLAYER START FOUND");
     } // end of carReset func
 
     this.move = function () {
